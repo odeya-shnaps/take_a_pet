@@ -55,10 +55,11 @@ class _AnimalProfileCreateState extends State<AnimalProfileCreate> {
       isAdopted: false,
       isDeleted: false,
       qualities: [],
-  likesNum: 0);
+      likesNum: 0);
   String _currentUserId = '';
   final _formKey = GlobalKey<FormState>();
   bool loading = false;
+  bool saved = false;
   var _pressIcon = List<bool>.filled(3, false);
   //var _fieldIcons = List<Icon>.filled(3, Icon(Icons.keyboard_arrow_down_sharp));
   String _error = "";
@@ -85,8 +86,6 @@ class _AnimalProfileCreateState extends State<AnimalProfileCreate> {
   bool algoInProgress = false;
   String breedClassification='';
   String typeClassification='';
-
-  bool saving = false;
 
 
   @override
@@ -245,7 +244,7 @@ class _AnimalProfileCreateState extends State<AnimalProfileCreate> {
     try {
       //print('try');
       if(!validImage) {
-       // print('You uploaded invalid image for your pet - see details above');
+        // print('You uploaded invalid image for your pet - see details above');
         throw 'You uploaded invalid image for your pet - see details above';
       }
 
@@ -254,26 +253,42 @@ class _AnimalProfileCreateState extends State<AnimalProfileCreate> {
 
         // want to show the loading widget instead of form field
         // setState - tells the framework that the widget’s state has changed and that the widget should be redrawn
+        setState(() {
+          loading = true;
+        });
 
-        print('insert details to animal');
-        _insertDetailsToAnimal();
-        //print('AFTER insert details to animal');
-
-
-        //print('name   '+_currentAnimal.name);
-
-        Future.wait([
-          widget.dataRepo.createAnimalInDB(newAnimal: _currentAnimal),
-          _addProfileToCreator(),
-          if(_selectedImage != null) widget.storage.uploadImageToStorage(_animalId, _selectedImage as File),
-          //widget.dataRepo.updateAnimal(updatedAnimal: _currentAnimal)
-        ]);
-
-        print('finish insertion to DB');
+          _insertDetailsToAnimal();
+          //print('AFTER insert details to animal');
 
 
+          //print('name   '+_currentAnimal.name);
 
-      } else {
+        await widget.dataRepo.createAnimalInDB(newAnimal: _currentAnimal);
+        await _addProfileToCreator();
+        if(_selectedImage != null) {
+          await widget.storage.uploadImageToStorage(_animalId, _selectedImage as File);
+        }
+
+
+    // Future.wait([
+    //         widget.dataRepo.createAnimalInDB(newAnimal: _currentAnimal),
+    //         _addProfileToCreator(),
+    //         if(_selectedImage != null) widget.storage.uploadImageToStorage(_animalId, _selectedImage as File),
+    //         //widget.dataRepo.updateAnimal(updatedAnimal: _currentAnimal)
+    //       ]);
+
+          print('finish insertion to DB');
+
+          setState(() {
+
+            _error = "";
+            loading = false;
+            saved = true;
+          });
+
+
+
+        } else {
         //print('You have problems in the info inserted');
 
         throw 'You have problems in the info inserted - see details above';
@@ -288,18 +303,20 @@ class _AnimalProfileCreateState extends State<AnimalProfileCreate> {
       _showError();
       setState(() {
         print('saving=trueERROR');
+        saved = false;
 
-        saving = false;
+        loading = false;
       });
     }
   }
+
 
   Widget _getActionButtons(BuildContext context) {
 
 
     return Padding(
         padding: EdgeInsets.only(left: 25.0, right: 25.0, top: 45.0),
-        child: saving ? CircularProgressIndicator() : (validImage) ? ShadowButton(
+        child: (validImage) ? ShadowButton(
           text: "PUBLISH",
           color: Colors.green,
           height: 40,
@@ -310,18 +327,8 @@ class _AnimalProfileCreateState extends State<AnimalProfileCreate> {
 
             print('PUBLISH');
 
-            setState(() {
-              print('saving=true');
-              saving = true;
-            });
             _saveDetails(context);
 
-            setState(() {
-              _error = "";
-              print('saving=false');
-
-              saving = false;
-            });
 
             //sleep(Duration(seconds: 3));
             // print('pop');
@@ -575,196 +582,375 @@ class _AnimalProfileCreateState extends State<AnimalProfileCreate> {
   @override
   Widget build(BuildContext context) {
 
-    
-    return AdminScaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: const Text('Animal Profile'),
-        backgroundColor: Colors.lightBlue,
-        actions: !algoInProgress ?
-        [
-          IconButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              icon: Icon(Icons.arrow_forward)
-          ),
-        ] : [] // if algorithm is running - no option to go back,,
-      ),
-      sideBar: buildSideBar(context),
-      body: Container(
-        color: Colors.white,
-        child: (saving == false) ? Form(
-          key: _formKey,
-          child: ListView(
-            padding: const EdgeInsets.fromLTRB(20, 30.0, 20, 30),
-            children: <Widget>[
-              Center(
-                child: Text(
-                  'Pet Image',
-                  style: TextStyle(
-                      fontSize: 16.0,
-                      fontWeight: FontWeight.bold
-                  ),
-                ),
-              ),
-              _createProfileImage(),
-              _isImageValid(context),
-              SizedBox(height: 20),
-              Padding(
-                padding: EdgeInsets.only(left: 20, right: 20),
-                child: Column(
-                  children: [
-                    Row(
-                      children: <Widget> [
-                        Text(
-                            'Breed:    ',
-                            style : TextStyle(
-                                fontSize: 16.0,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black45
-                            )
-                        ),
-                        Flexible(
-                          child: Text(
-                              breedClassification,
-                              style : TextStyle(
-                                  fontSize: 18.0,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black
-                              )
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 20),
-                    //validImage ?
-                    Row(
-                      children: <Widget> [
-                        Text(
-                            'Type:    ',
-                            style : TextStyle(
-                                fontSize: 16.0,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black45
-                            )
-                        ),
-                        Flexible(
-                          child: Text(
-                              typeClassification,
-                              style : TextStyle(
-                                  fontSize: 18.0,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black
-                              )
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 20),
-                    _createTextFormField(
-                        context,
-                        "Name",
-                        Icon(Icons.pets),
-                        nameController,
-                        nameFocus,
-                        typeFocus,
-                        TextInputType.name,
-                        true),
-                    SizedBox(height: 20),
-                    _createTextFormField(
-                        context,
-                        "Age",
-                        Icon(Icons.date_range_outlined),
-                        ageController,
-                        ageFocus,
-                        locationFocus,
-                        TextInputType.text,
-                        true),
-                  ],
-                ),
-              ),
-              SizedBox(height: 20),
-              _createTextFieldPickButton(
-                  context, "Gender", Icon(Icons.wc_outlined, color: Colors.grey,), 0, genderController, ['Female', 'Male'],
-                  true),
-              //SizedBox(height: 10),
-              _createTextFieldPickButton(
-                  context, "Is Trained?", Icon(Icons.wb_incandescent_outlined, color: Colors.grey), 1, trainedController,
-                  ['Trained', 'Not Trained'], false),
-              //SizedBox(height: 10),
-              _createTextFieldPickButton(context, "Size", Icon(Icons.photo_size_select_large_outlined, color: Colors.grey), 2, sizeController,
-                  ['S', 'M', 'L'], true),
-              //SizedBox(height: 10),
-              Padding(
-                padding: EdgeInsets.only(left: 20, right: 20),
-                child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _createTextFormField(
-                          context,
-                          "Location",
-                          Icon(Icons.location_on),
-                          locationController,
-                          locationFocus,
-                          null,
-                          TextInputType.text,
-                          true),
-                      //colors
-                      SizedBox(height: 30),
-                      Text(
-                        'Colors',
-                        style: TextStyle(
-                            fontSize: 16.0,
-                            fontWeight: FontWeight.bold
-                        ),
-                      ),
-                      SizedBox(height: 10),
-                      DynamicTextField(
-                        hint: "Color", fieldsController: colorsController,),
-                      // qualities
-                      SizedBox(height: 30),
-                      Text('Qualities',
-                        style: TextStyle(
-                            fontSize: 16.0, fontWeight: FontWeight.bold),
-                      ),
-                      SizedBox(height: 10),
-                      DynamicTextField(hint: "Quality",
-                        fieldsController: qualitiesController,),
-                      SizedBox(height: 20),
-                      _createTextFormField(
-                          context,
-                          "About Your Pet",
-                          Icon(Icons.description_outlined),
-                          descriptionController,
-                          descriptionFocus,
-                          null,
-                          TextInputType.text,
-                          false),
-                    ]
-                ),
-              ),
-              //SizedBox(height: 20),
-              _getActionButtons(context),
-              // create the appropriate buttons after pressing edit or in the start - on registration
 
-            ],
-          ),
-        ) : Center(
+    return AdminScaffold(
+        backgroundColor: Colors.white,
+        appBar: AppBar(
+            title: const Text('Animal Profile'),
+            backgroundColor: Colors.lightBlue,
+            actions: !algoInProgress ?
+            [
+            IconButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                icon: Icon(Icons.arrow_forward)
+            ),
+            ] : [] // if algorithm is running - no option to go back,,
+        ),
+        sideBar: buildSideBar(context),
+        //body: _isFormSubmitted(context),
+        body: Container(
+          color: Colors.white,
+          child: loading ? Center(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
 
               children: [
-                Text('Saving profile'),
+                Text('Saving profile', style: TextStyle(fontWeight: FontWeight.bold),),
                 SizedBox(height: 10,),
                 CircularProgressIndicator(color: Colors.orange,)
               ],
             ),
-          ),
-      )
-    );
+          ) : saved ? Center(
+            child: Text('Profile saved',
+            style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold),),
+
+          ) : Form(
+            key: _formKey,
+            child: ListView(
+              padding: const EdgeInsets.fromLTRB(20, 30.0, 20, 30),
+              children: <Widget>[
+                Center(
+                  child: Text(
+                    'Pet Image',
+                    style: TextStyle(
+                        fontSize: 16.0,
+                        fontWeight: FontWeight.bold
+                    ),
+                  ),
+                ),
+                _createProfileImage(),
+                _isImageValid(context),
+                SizedBox(height: 20),
+                Padding(
+                  padding: EdgeInsets.only(left: 20, right: 20),
+                  child: Column(
+                    children: <Widget>[
+                      Row(
+                        children: <Widget> [
+                          Text(
+                              'Breed:    ',
+                              style : TextStyle(
+                                  fontSize: 16.0,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black45
+                              )
+                          ),
+                          Flexible(
+                            child: Text(
+                                breedClassification,
+                                style : TextStyle(
+                                    fontSize: 18.0,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black
+                                )
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 20),
+                      //validImage ?
+                      Row(
+                        children: <Widget> [
+                          Text(
+                              'Type:    ',
+                              style : TextStyle(
+                                  fontSize: 16.0,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black45
+                              )
+                          ),
+                          Flexible(
+                            child: Text(
+                                typeClassification,
+                                style : TextStyle(
+                                    fontSize: 18.0,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black
+                                )
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 20),
+                      _createTextFormField(
+                          context,
+                          "Name",
+                          Icon(Icons.pets),
+                          nameController,
+                          nameFocus,
+                          typeFocus,
+                          TextInputType.name,
+                          true),
+                      SizedBox(height: 20),
+                      _createTextFormField(
+                          context,
+                          "Age",
+                          Icon(Icons.date_range_outlined),
+                          ageController,
+                          ageFocus,
+                          locationFocus,
+                          TextInputType.text,
+                          true),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 20),
+                _createTextFieldPickButton(
+                    context, "Gender", Icon(Icons.wc_outlined, color: Colors.grey,), 0, genderController, ['Female', 'Male'],
+                    true),
+                //SizedBox(height: 10),
+                _createTextFieldPickButton(
+                    context, "Is Trained?", Icon(Icons.wb_incandescent_outlined, color: Colors.grey), 1, trainedController,
+                    ['Trained', 'Not Trained'], false),
+                //SizedBox(height: 10),
+                _createTextFieldPickButton(context, "Size", Icon(Icons.photo_size_select_large_outlined, color: Colors.grey), 2, sizeController,
+                    ['S', 'M', 'L'], true),
+                //SizedBox(height: 10),
+                Padding(
+                  padding: EdgeInsets.only(left: 20, right: 20),
+                  child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _createTextFormField(
+                            context,
+                            "Location",
+                            Icon(Icons.location_on),
+                            locationController,
+                            locationFocus,
+                            null,
+                            TextInputType.text,
+                            true),
+                        //colors
+                        SizedBox(height: 30),
+                        Text(
+                          'Colors',
+                          style: TextStyle(
+                              fontSize: 16.0,
+                              fontWeight: FontWeight.bold
+                          ),
+                        ),
+                        SizedBox(height: 10),
+                        DynamicTextField(
+                          hint: "Color", fieldsController: colorsController,),
+                        // qualities
+                        SizedBox(height: 30),
+                        Text('Qualities',
+                          style: TextStyle(
+                              fontSize: 16.0, fontWeight: FontWeight.bold),
+                        ),
+                        SizedBox(height: 10),
+                        DynamicTextField(hint: "Quality",
+                          fieldsController: qualitiesController,),
+                        SizedBox(height: 20),
+                        _createTextFormField(
+                            context,
+                            "About Your Pet",
+                            Icon(Icons.description_outlined),
+                            descriptionController,
+                            descriptionFocus,
+                            null,
+                            TextInputType.text,
+                            false),
+                      ]
+                  ),
+                ),
+                SizedBox(height: 3),
+                // loading ? CircularProgressIndicator()
+                //     :
+                // create the appropriate buttons after pressing edit or in the start - on registration
+                _getActionButtons(context),
+              ],
+            ),
+          )
+        ),
+      );
+
   }
+
+  // Widget _isFormSubmitted(BuildContext context) {
+  //   if (saving) {
+  //     return CircularProgressIndicator();
+  //   }
+  //
+  //
+  //   return Container(
+  //     color: Colors.white,
+  //     child: Form(
+  //       key: _formKey,
+  //       child: ListView(
+  //         padding: const EdgeInsets.fromLTRB(20, 30.0, 20, 30),
+  //         children: <Widget>[
+  //           Center(
+  //             child: Text(
+  //               'Pet Image',
+  //               style: TextStyle(
+  //                   fontSize: 16.0,
+  //                   fontWeight: FontWeight.bold
+  //               ),
+  //             ),
+  //           ),
+  //           _createProfileImage(),
+  //           _isImageValid(context),
+  //           SizedBox(height: 20),
+  //           Padding(
+  //             padding: EdgeInsets.only(left: 20, right: 20),
+  //             child: Column(
+  //               children: [
+  //                 Row(
+  //                   children: <Widget> [
+  //                     Text(
+  //                         'Breed:    ',
+  //                         style : TextStyle(
+  //                             fontSize: 16.0,
+  //                             fontWeight: FontWeight.bold,
+  //                             color: Colors.black45
+  //                         )
+  //                     ),
+  //                     Flexible(
+  //                       child: Text(
+  //                           breedClassification,
+  //                           style : TextStyle(
+  //                               fontSize: 18.0,
+  //                               fontWeight: FontWeight.bold,
+  //                               color: Colors.black
+  //                           )
+  //                       ),
+  //                     ),
+  //                   ],
+  //                 ),
+  //                 SizedBox(height: 20),
+  //                 //validImage ?
+  //                 Row(
+  //                   children: <Widget> [
+  //                     Text(
+  //                         'Type:    ',
+  //                         style : TextStyle(
+  //                             fontSize: 16.0,
+  //                             fontWeight: FontWeight.bold,
+  //                             color: Colors.black45
+  //                         )
+  //                     ),
+  //                     Flexible(
+  //                       child: Text(
+  //                           typeClassification,
+  //                           style : TextStyle(
+  //                               fontSize: 18.0,
+  //                               fontWeight: FontWeight.bold,
+  //                               color: Colors.black
+  //                           )
+  //                       ),
+  //                     ),
+  //                   ],
+  //                 ),
+  //                 SizedBox(height: 20),
+  //                 _createTextFormField(
+  //                     context,
+  //                     "Name",
+  //                     Icon(Icons.pets),
+  //                     nameController,
+  //                     nameFocus,
+  //                     typeFocus,
+  //                     TextInputType.name,
+  //                     true),
+  //                 SizedBox(height: 20),
+  //                 _createTextFormField(
+  //                     context,
+  //                     "Age",
+  //                     Icon(Icons.date_range_outlined),
+  //                     ageController,
+  //                     ageFocus,
+  //                     locationFocus,
+  //                     TextInputType.text,
+  //                     true),
+  //               ],
+  //             ),
+  //           ),
+  //           SizedBox(height: 20),
+  //           _createTextFieldPickButton(
+  //               context, "Gender", Icon(Icons.wc_outlined, color: Colors.grey,), 0, genderController, ['Female', 'Male'],
+  //               true),
+  //           //SizedBox(height: 10),
+  //           _createTextFieldPickButton(
+  //               context, "Is Trained?", Icon(Icons.wb_incandescent_outlined, color: Colors.grey), 1, trainedController,
+  //               ['Trained', 'Not Trained'], false),
+  //           //SizedBox(height: 10),
+  //           _createTextFieldPickButton(context, "Size", Icon(Icons.photo_size_select_large_outlined, color: Colors.grey), 2, sizeController,
+  //               ['S', 'M', 'L'], true),
+  //           //SizedBox(height: 10),
+  //           Padding(
+  //             padding: EdgeInsets.only(left: 20, right: 20),
+  //             child: Column(
+  //                 mainAxisAlignment: MainAxisAlignment.start,
+  //                 crossAxisAlignment: CrossAxisAlignment.start,
+  //                 children: [
+  //                   _createTextFormField(
+  //                       context,
+  //                       "Location",
+  //                       Icon(Icons.location_on),
+  //                       locationController,
+  //                       locationFocus,
+  //                       null,
+  //                       TextInputType.text,
+  //                       true),
+  //                   //colors
+  //                   SizedBox(height: 30),
+  //                   Text(
+  //                     'Colors',
+  //                     style: TextStyle(
+  //                         fontSize: 16.0,
+  //                         fontWeight: FontWeight.bold
+  //                     ),
+  //                   ),
+  //                   SizedBox(height: 10),
+  //                   DynamicTextField(
+  //                     hint: "Color", fieldsController: colorsController,),
+  //                   // qualities
+  //                   SizedBox(height: 30),
+  //                   Text('Qualities',
+  //                     style: TextStyle(
+  //                         fontSize: 16.0, fontWeight: FontWeight.bold),
+  //                   ),
+  //                   SizedBox(height: 10),
+  //                   DynamicTextField(hint: "Quality",
+  //                     fieldsController: qualitiesController,),
+  //                   SizedBox(height: 20),
+  //                   _createTextFormField(
+  //                       context,
+  //                       "About Your Pet",
+  //                       Icon(Icons.description_outlined),
+  //                       descriptionController,
+  //                       descriptionFocus,
+  //                       null,
+  //                       TextInputType.text,
+  //                       false),
+  //                 ]
+  //             ),
+  //           ),
+  //           //SizedBox(height: 20),
+  //           _getActionButtons(context),
+  //           // create the appropriate buttons after pressing edit or in the start - on registration
+  //
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  //
+  //
+  // }
 
 
   Widget _isImageValid(BuildContext context) {
@@ -785,8 +971,9 @@ class _AnimalProfileCreateState extends State<AnimalProfileCreate> {
     }
 
     if(!validImage) {
+      print(_error);
       return Center(
-        child: Text(_error.toString(),
+        child: Text(_error.toString(),textAlign: TextAlign.center,
             style : TextStyle(
                 fontSize: 14.0,
                 fontWeight: FontWeight.bold,
@@ -798,16 +985,13 @@ class _AnimalProfileCreateState extends State<AnimalProfileCreate> {
       return Icon(Icons.assignment_turned_in_outlined, color: Colors.green);
     }
 
-    return Text('');
-
   }
 
 
   Future<void> openImagePicker({required ImageSource imageSource}) async {
-    try {
+    try{
       final pickedImage = await ImagePicker().getImage(source: imageSource, maxWidth: 512, maxHeight: 512);
-      if (pickedImage == null)
-        return; // if no image picked - not changing anything
+      if (pickedImage == null) return; // if no image picked - not changing anything
 
       setState(() {
         _selectedImage = File(pickedImage.path);
@@ -1086,13 +1270,13 @@ class _AnimalProfileCreateState extends State<AnimalProfileCreate> {
                               //var label = finalLabel[index].replaceAll('_', ' ');
                               return new ElevatedButton(
                                   onPressed: () {
-                                finalLabel = finalLabel[index];
-                                Navigator.pop(dialogContext);
-                              }, child: Text(finalLabel[index].replaceAll('_', ' ')));
+                                    finalLabel = finalLabel[index];
+                                    Navigator.pop(dialogContext);
+                                  }, child: Text(finalLabel[index].replaceAll('_', ' ')));
                             },
                           ),
                         ]
-                      ),
+                    ),
                   ),
                 ),
               );

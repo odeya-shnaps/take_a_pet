@@ -557,13 +557,15 @@ class _AnimalProfileEditState extends State<AnimalProfileEdit> {
                                   color: Colors.black45
                               )
                           ),
-                          Text(
-                              breedClassification,
-                              style : TextStyle(
-                                  fontSize: 18.0,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black
-                              )
+                          Flexible(
+                            child: Text(
+                                breedClassification,
+                                style : TextStyle(
+                                    fontSize: 18.0,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black
+                                )
+                            ),
                           ),
                         ],
                       ),
@@ -579,13 +581,15 @@ class _AnimalProfileEditState extends State<AnimalProfileEdit> {
                                   color: Colors.black45
                               )
                           ),
-                          Text(
-                              typeClassification,
-                              style : TextStyle(
-                                  fontSize: 18.0,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black
-                              )
+                          Flexible(
+                            child: Text(
+                                typeClassification,
+                                style : TextStyle(
+                                    fontSize: 18.0,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black
+                                )
+                            ),
                           ),
                         ],
                       ),
@@ -925,10 +929,18 @@ class _AnimalProfileEditState extends State<AnimalProfileEdit> {
 
       //classificationLabel = finalLabel;
 
-      if(acceptedResult['outResult'] == true) {
+      var finalOut = acceptedResult['message']; // animal type OR error
+
+      var outVal = acceptedResult['outResult'];
+
+      if(outVal == 'Error') {
+        throw finalOut;
+      }
+
+      if(outVal == true) {
         // removing '_' from the label
 
-        typeClassification = acceptedResult['message'];
+        typeClassification = finalOut;
         setState(() {
           validImage = true;
         });
