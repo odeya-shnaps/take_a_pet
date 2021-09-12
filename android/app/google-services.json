@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "490599708621",
+    "firebase_url": "https://take-a-pet-default-rtdb.firebaseio.com",
+    "project_id": "take-a-pet",
+    "storage_bucket": "take-a-pet.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:490599708621:android:842696b04e80233b09b684",
+        "android_client_info": {
+          "package_name": "com.example.take_a_pet"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "490599708621-ohuir4vq5pdfbbhv55c10781m51kp3do.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAqpkYsBuBW1UcHprqpFEA_fOk9hMA-Eoc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "490599708621-ohuir4vq5pdfbbhv55c10781m51kp3do.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
