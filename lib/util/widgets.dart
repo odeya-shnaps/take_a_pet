@@ -85,8 +85,13 @@ SideBar buildSideBar(BuildContext context) {
     selectedRoute: '/',
     onSelected: (item) {
       if (item.route != null) {
-        Navigator.of(context).pushNamed(item.route!);
+        if (item.title == 'Favorites' || item.title == 'Home' || item.title == 'Recommendations') {
+          Navigator.of(context).pushReplacementNamed(item.route!);
+        } else {
+          Navigator.of(context).pushNamed(item.route!);
+        }
       }
+
     },
 /*
     header: Center(

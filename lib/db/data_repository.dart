@@ -17,6 +17,8 @@ class DataRepository {
 
 
 
+  //AppUser? _user;
+
   ///USERS COLLECTION
   // returns the new data in the form of userData
   AppUser _appUserFromSnapshot(DocumentSnapshot? snap) {
@@ -95,6 +97,8 @@ class DataRepository {
     return listOfUsers;
   }
 
+
+
   // animals in FEED (does not contain animals the user created)
   Stream<List<AnimalProfile>?> getAnimalsList (){
     // return a stream when there is a change in the collection
@@ -103,6 +107,7 @@ class DataRepository {
     return this._fb.collection(ANIMALS_COLLECTION_NAME).orderBy('createdAt', descending: true).snapshots().map(animalsListFromSnapshot);
 
   }
+
 
   Future<List<AnimalProfile>> getFeed() async {
     CollectionReference<Map<String, dynamic>> ref = this._fb.collection(ANIMALS_COLLECTION_NAME);
@@ -118,7 +123,6 @@ class DataRepository {
 
   }
 
-
   List<AnimalProfile>? animalsListFromSnapshot(QuerySnapshot? snapshot) {
     // no users in DB
     if(snapshot == null) {
@@ -130,12 +134,108 @@ class DataRepository {
 
       var animal = AnimalProfile.fromSnapshot(docum);
       if(animal.creatorId != AuthRepository().getCurrentUser()!.uid) {
-        listOfAnimals.add(AnimalProfile.fromSnapshot(docum));
+        listOfAnimals.add(animal);
       }
 
     });
     return listOfAnimals;
   }
+
+
+
+  // //animals in FEED (does not contain animals the user created)
+  // Stream<List<AnimalProfile>?> getAnimalsList ({required bool feed, required bool fav, AppUser? appUser}){
+  //   // return a stream when there is a change in the collection
+  //   // return this._fb.collection(ANIMALS_COLLECTION_NAME).snapshots().map(animalsListFromSnapshot);
+  //
+  //   var st;
+  //   if(feed) {
+  //     st = this._fb.collection(ANIMALS_COLLECTION_NAME).orderBy('createdAt', descending: true).snapshots();
+  //
+  //     return st.map(feedListFromSnapshot);
+  //   }
+  //
+  //   st = this._fb.collection(ANIMALS_COLLECTION_NAME).orderBy('createdAt', descending: true).snapshots();
+  //
+  //   _user = appUser;
+  //   return st.map(favListFromSnapshot);
+  //
+  //   //return this._fb.collection(ANIMALS_COLLECTION_NAME).orderBy('createdAt', descending: true).snapshots().map(feedListFromSnapshot);
+  //
+  // }
+
+  // Future<List<AnimalProfile>> getFeed() async {
+  //   CollectionReference<Map<String, dynamic>> ref = this._fb.collection(ANIMALS_COLLECTION_NAME);
+  //
+  //
+  //   List<AnimalProfile>? feedList;
+  //
+  //   await ref.orderBy('createdAt', descending: true).get().then((querySnapshot) => {
+  //     feedList = feedListFromSnapshot(querySnapshot)
+  //   });
+  //
+  //   return feedList ?? [];
+  //
+  // }
+
+  // Future<List<AnimalProfile>> getFavorites(AppUser appUser) async {
+  //   _user = appUser;
+  //   CollectionReference<Map<String, dynamic>> ref = this._fb.collection(ANIMALS_COLLECTION_NAME);
+  //
+  //
+  //   List<AnimalProfile>? favList;
+  //
+  //   await ref.orderBy('createdAt', descending: true).get().then((querySnapshot) => {
+  //     favList = favListFromSnapshot(querySnapshot)
+  //   });
+  //
+  //   return favList ?? [];
+  //
+  // }
+  //
+  // List<AnimalProfile>? feedListFromSnapshot(QuerySnapshot? snapshot) {
+  //   // no users in DB
+  //   if(snapshot == null) {
+  //     return null;
+  //   }
+  //
+  //   List<AnimalProfile> listOfAnimals = [];
+  //   snapshot.docs.forEach((docum) {
+  //
+  //     var animal = AnimalProfile.fromSnapshot(docum);
+  //     if(animal.creatorId != AuthRepository().getCurrentUser()!.uid) {
+  //       listOfAnimals.add(animal);
+  //     }
+  //
+  //   });
+  //   return listOfAnimals;
+  // }
+
+  // List<AnimalProfile>? favListFromSnapshot(QuerySnapshot? snapshot) {
+  //   // no users in DB
+  //   if(snapshot == null) {
+  //     return null;
+  //   }
+  //
+  //   List<AnimalProfile> favAnimals = [];
+  //   snapshot.docs.forEach((docum) {
+  //
+  //     var animal = AnimalProfile.fromSnapshot(docum);
+  //     if(animal.creatorId != AuthRepository().getCurrentUser()!.uid) {
+  //       List<String> _favList = [];
+  //       if(_user != null) {
+  //         _favList = _user!.getFavProfilesList();
+  //       }
+  //
+  //       if(_favList.contains(animal.id)) {
+  //         favAnimals.add(animal);
+  //       }
+  //
+  //     }
+  //
+  //   });
+  //   return favAnimals;
+  // }
 
 
   ///ANIMALS COLLECTION

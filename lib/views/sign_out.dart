@@ -53,7 +53,7 @@ class _SignOutState extends State<SignOut> {
               IconButton(
                 onPressed: () {
                   Navigator.of(context).pushNamedAndRemoveUntil(
-                      '/login', (Route<dynamic> route) => false).then((_) => setState(() {}));;
+                      '/login', (Route<dynamic> route) => false);
                 },
                 icon: Icon(Icons.logout),
                 iconSize: 50,

@@ -358,9 +358,11 @@ class _UserProfileEditState extends State<UserProfileEdit>
   Widget build(BuildContext context) {
     //_getUserInformation();
 
-    return WillPopScope(
-      onWillPop: () => showExitPopup(context),
-      child: AdminScaffold(
+    return
+      // WillPopScope(
+      // onWillPop: () => showExitPopup(context),
+      // child:
+      AdminScaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(
           title: const Text('My Profile'),
@@ -574,8 +576,8 @@ class _UserProfileEditState extends State<UserProfileEdit>
             ),
           ),
         ),
-      ),
-    );
+      );
+    //);
   }
 
   Future<void> openImagePicker({required ImageSource imageSource}) async {

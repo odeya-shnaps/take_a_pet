@@ -189,7 +189,7 @@ class _AnimalProfileEditState extends State<AnimalProfileEdit> {
     _currentAnimal = _currentAnimal.copyWith(id: _animalId,
         name: nameController.text, age: age, gender: genderController.text,
         size: sizeController.text, color: colors, location: locationController.text,
-        createdAt: Timestamp.now(), creatorId: _currentUserId, isAdopted: false,
+        /*createdAt: Timestamp.now(),*/ creatorId: _currentUserId, isAdopted: false,
         isDeleted: false, qualities: qualities,
         isTrained: trained, about: descriptionController.text);
   }
@@ -498,16 +498,17 @@ class _AnimalProfileEditState extends State<AnimalProfileEdit> {
 
     //_getPetInformation();
 
-    return WillPopScope(
-      onWillPop: () { // clicking the BACK button in the phone
-        //trigger leaving and use own data
-        Navigator.pop(context);
-        Navigator.pushNamed(context, '/created_profiles');
-
-        //we need to return a future
-        return Future.value(false);
-      },
-      child: AdminScaffold(
+    // return WillPopScope(
+    //   onWillPop: () { // clicking the BACK button in the phone
+    //     //trigger leaving and use own data
+    //     Navigator.pop(context);
+    //     Navigator.pushNamed(context, '/created_profiles');
+    //
+    //     //we need to return a future
+    //     return Future.value(false);
+    //   },
+    //   child:
+     return AdminScaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(
           title: const Text('Animal Profile'),
@@ -516,9 +517,9 @@ class _AnimalProfileEditState extends State<AnimalProfileEdit> {
           [
             IconButton(
                 onPressed: () {
-                  sleep(Duration(seconds: 1));
+                  //sleep(Duration(seconds: 1));
                   Navigator.pop(context);
-                  Navigator.pushNamed(context, '/created_profiles');
+                  //Navigator.pushNamed(context, '/created_profiles');
                 },
                 icon: Icon(Icons.arrow_forward)
             ),
@@ -695,8 +696,8 @@ class _AnimalProfileEditState extends State<AnimalProfileEdit> {
             ),
           ),
         ),
-      ),
-    );
+      );
+    //);
   }
 
   Widget _isImageValid(BuildContext context) {
@@ -790,16 +791,6 @@ class _AnimalProfileEditState extends State<AnimalProfileEdit> {
                     selectImageSource(ImageSource.gallery);
                   },
                 ),
-                // (_selectedImage != null || _currentImageInDB != null) ?
-                // CupertinoActionSheetAction(
-                //   child: Text('Remove Picture'),
-                //   onPressed: () {
-                //     Navigator.pop(context);
-                //     _deleteProfilePic();
-                //   },
-                // )
-                //     :
-                // Container(),
               ],
             ),
       );
@@ -824,18 +815,6 @@ class _AnimalProfileEditState extends State<AnimalProfileEdit> {
                   selectImageSource(ImageSource.gallery);
                 },
               ),
-              // (_selectedImage != null || _currentImageInDB != null) ?
-              // ListTile(
-              //   leading: Icon(Icons.delete),
-              //   title: Text('Remove Picture'),
-              //   onTap: () {
-              //     Navigator.pop(context);
-              //     // remove from db
-              //     _deleteProfilePic();
-              //   },
-              // )
-              //     :
-              // Container(),
             ]),
       );
     }
@@ -1003,10 +982,12 @@ class _AnimalProfileEditState extends State<AnimalProfileEdit> {
             barrierDismissible: false,
             builder: (BuildContext context) {
               dialogContext = context;
-              return WillPopScope(
-                onWillPop: () => showExitPopup(context),
-                // onWillPop: () { return Future.value(false); },
-                child: Dialog(
+              return
+                // WillPopScope(
+                // onWillPop: () => showExitPopup(context),
+                // // onWillPop: () { return Future.value(false); },
+                // child:
+                Dialog(
                   child: ListView.builder(
                     shrinkWrap: true,
                     itemCount: 4,
@@ -1018,8 +999,8 @@ class _AnimalProfileEditState extends State<AnimalProfileEdit> {
                       }, child: Text(finalLabel[index].replaceAll('_', ' ')));
                     },
                   ),
-                ),
-              );
+                );
+              //);
             });
 
 

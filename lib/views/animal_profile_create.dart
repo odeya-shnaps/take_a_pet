@@ -199,7 +199,7 @@ class _AnimalProfileCreateState extends State<AnimalProfileCreate> {
         size: sizeController.text,
         color: colors,
         location: locationController.text,
-        createdAt: Timestamp.now(),
+        //createdAt: Timestamp.now(),
         creatorId: _currentUserId,
         isAdopted: false,
         isDeleted: false,
@@ -295,9 +295,6 @@ class _AnimalProfileCreateState extends State<AnimalProfileCreate> {
       }
 
 
-
-      //Navigator.pop(context);
-
     } catch (e) {
       _error = e.toString();
       _showError();
@@ -328,13 +325,6 @@ class _AnimalProfileCreateState extends State<AnimalProfileCreate> {
             print('PUBLISH');
 
             _saveDetails(context);
-
-
-            //sleep(Duration(seconds: 3));
-            // print('pop');
-            // Navigator.pop(context);
-            // print('push');
-            // Navigator.pushNamed(context, '/created_profiles');
 
           },
         ) :
@@ -1253,10 +1243,11 @@ class _AnimalProfileCreateState extends State<AnimalProfileCreate> {
             barrierDismissible: false,
             builder: (BuildContext context) {
               dialogContext = context;
-              return WillPopScope(
-                onWillPop: () => showExitPopup(context),
-                //onWillPop: () { return Future.value(false); },
-                child: AlertDialog(
+              // return WillPopScope(
+              //   onWillPop: () => showExitPopup(context),
+              //   //onWillPop: () { return Future.value(false); },
+              //   child:
+               return AlertDialog(
                   content: Container(
                     height: MediaQuery.of(context).size.height / 2,
                     child: Column(
@@ -1278,8 +1269,8 @@ class _AnimalProfileCreateState extends State<AnimalProfileCreate> {
                         ]
                     ),
                   ),
-                ),
-              );
+                );
+              //);
             });
 
 

@@ -104,20 +104,19 @@ class _FavoritesState extends State<Favorites> {
 
   Widget _createCard(index) {
     return AnimalProfileCard(animalProfile: _animalsList[index],
-      storage: widget.storage,
-      logic: widget.logic,
-      dataRepo: widget.dataRepo,
-      withEdit: false, key: new GlobalKey()
+        storage: widget.storage,
+        logic: widget.logic,
+        dataRepo: widget.dataRepo,
+        withEdit: false, key: new GlobalKey()
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return
-      // WillPopScope(
-      // onWillPop: () => showExitPopup(context),
-      // child:
-      AdminScaffold(
+      WillPopScope(
+      onWillPop: () => showExitPopup(context),
+      child: AdminScaffold(
           backgroundColor: Colors.white,
           appBar: AppBar(
             title: const Text('Favorites'),
@@ -157,7 +156,7 @@ class _FavoritesState extends State<Favorites> {
             ),
           )
 
-      );
-    //);
+      ),
+    );
   }
 }

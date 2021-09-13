@@ -104,9 +104,9 @@ class _RecommendationState extends State<Recommendation> {
   @override
   Widget build(BuildContext context) {
     return
-      // WillPopScope(
-      // onWillPop: () => showExitPopup(context),
-      // child:
+      WillPopScope(
+      onWillPop: () => showExitPopup(context),
+      child:
       AdminScaffold(
           backgroundColor: Colors.white,
           appBar: AppBar(
@@ -147,8 +147,8 @@ class _RecommendationState extends State<Recommendation> {
             ),
           )
 
-      );
-    //);
+      ),
+    );
   }
 }
 

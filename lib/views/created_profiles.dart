@@ -127,17 +127,10 @@ class _CreatedProfilesState extends State<CreatedProfiles> {
 
   @override
   Widget build(BuildContext context) {
-    print('ANIMALS: '+ _animalsList.length.toString());
 
-    // setState(() {
-    //   //_update();
-    //   _currentUserDetails();
-    // });
-    print('ANIMALS22: '+ _animalsList.length.toString());
+    return
 
-    return WillPopScope(
-      onWillPop: () => showExitPopup(context),
-      child: AdminScaffold(
+      AdminScaffold(
           backgroundColor: Colors.white,
           appBar: AppBar(
             title: const Text('Created Profiles', style: TextStyle(fontSize: 15, color: Colors.white),),
@@ -145,12 +138,13 @@ class _CreatedProfilesState extends State<CreatedProfiles> {
             actions: [
               IconButton(
                   onPressed: () {
-                    //create profile
-                    Navigator.pushReplacementNamed(
+
+                    Navigator.pushNamed(
                         context, '/animal_profile_create').then((_) => setState(() {
                       //_update();
                       _currentUserDetails();
                     }));
+
                   },
                   icon: Icon(Icons.add)
               ),
@@ -201,7 +195,7 @@ class _CreatedProfilesState extends State<CreatedProfiles> {
             ),
           )
 
-      ),
-    );
+      );
+    //);
   }
 }

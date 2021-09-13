@@ -23,7 +23,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  
+
   firebase_auth:
   cloud_firestore:
   image_picker:
@@ -43,6 +43,7 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
   color: any
+  image_compare: ^1.1.1
 
 dev_dependencies:
   flutter_test:

@@ -2,6 +2,7 @@
 import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:image_compare/image_compare.dart';
 import 'package:take_a_pet/db/data_repository.dart';
 import 'package:take_a_pet/db/db_logic.dart';
 import 'package:take_a_pet/db/storage_repository.dart';
@@ -68,6 +69,10 @@ class AnimalProfileCardState extends State<AnimalProfileCard> with AutomaticKeep
   bool isDeleted = false;
   bool isUpdated = true;
 
+  late double _cardWidth;
+  late double _cardHeight;
+
+
 
 
 
@@ -80,16 +85,41 @@ class AnimalProfileCardState extends State<AnimalProfileCard> with AutomaticKeep
   void setAsUpdated() async {
 
     // getting the updated info from DB
-      AnimalProfile? ap = await widget.dataRepo.getAnimalById(widget.animalProfile.id);
-      if(ap !=null) {
-        widget.animalProfile = ap;
-      }
-
+    AnimalProfile? ap = await widget.dataRepo.getAnimalById(widget.animalProfile.id);
+    if(ap !=null) {
+      widget.animalProfile = ap;
+    }
 
     setState((){
       isUpdated = true;
     });
   }
+
+  // Future<void> checkIfImageUpdated() async {
+  //   print('checkIfImageUpdated');
+  //
+  //
+  //   Image? dbImage= await _retrievePicFromDB(save: false);
+  //
+  //   Image.
+  //
+  //   var assetResult = await compareImages(
+  //       src1: _currentImage, src2: dbImage, algorithm: PixelMatching());
+  //
+  //   print('assetResult  '+ assetResult.toString());
+  //
+  //
+  //   if(assetResult > 0.0) {
+  //     print('Image changed');
+  //     setState((){
+  //       _currentImage = dbImage;
+  //       print('updated here');
+  //       isUpdated = true;
+  //     });
+  //   }
+  //
+  //
+  // }
 
 
 
@@ -130,6 +160,7 @@ class AnimalProfileCardState extends State<AnimalProfileCard> with AutomaticKeep
   }
 
   Future<void> _currentUserDetails() async {
+    print('IN');
     try {
     _currentUserId = widget.logic.getCurrentUser()!.uid;
     _currentUser = await widget.logic.getUserById(_currentUserId);
@@ -151,6 +182,7 @@ class AnimalProfileCardState extends State<AnimalProfileCard> with AutomaticKeep
     }
   }
 
+
   Future<void> _retrievePicFromDB() async {
     print('RETRIEVE');
     String fileName = widget.animalProfile.id;
@@ -170,6 +202,31 @@ class AnimalProfileCardState extends State<AnimalProfileCard> with AutomaticKeep
     }
   }
 
+  // Future<Image?> _retrievePicFromDB({required bool save}) async {
+  //   print('RETRIEVE');
+  //   String fileName = widget.animalProfile.id;
+  //
+  //   try {
+  //     Image? currentProfileImage = await widget.storage.getImageFromStorage(fileName);
+  //     print(currentProfileImage);
+  //
+  //
+  //     if(save) {
+  //       setState(() {
+  //         _currentImage = currentProfileImage;
+  //       });
+  //       return null;
+  //     } else {
+  //       return currentProfileImage;
+  //     }
+  //
+  //
+  //   } catch (e) {
+  //     _error = e.toString();
+  //     _showError();
+  //   }
+  // }
+
   void _checkIfLiked() {
     String profileId = widget.animalProfile.id;
 
@@ -183,6 +240,14 @@ class AnimalProfileCardState extends State<AnimalProfileCard> with AutomaticKeep
 
   Future<void> _addToFavorites() async {
     try {
+      // updating the favorite list - maybe other card also added to favorites
+      //await _currentUserDetails();
+
+      AppUser upUser = await widget.logic.getUserById(_currentUserId);
+      if(upUser.getFavProfilesList() != _currentUser.getFavProfilesList()) {
+        _currentUser = _currentUser.copyWith(favoriteProfilesIdList: upUser.favoriteProfilesIdList);
+      }
+
       AnimalProfile newAnimalProf = widget.animalProfile.copyWith(likesNum: widget.animalProfile.getLikes()+1);
 
       _currentUser.addToFavProfilesList(newAnimalProf.id);
@@ -200,6 +265,12 @@ class AnimalProfileCardState extends State<AnimalProfileCard> with AutomaticKeep
 
   Future<void> _removeFromFavorites() async {
     try {
+
+      AppUser upUser = await widget.logic.getUserById(_currentUserId);
+      if(upUser.getFavProfilesList() != _currentUser.getFavProfilesList()) {
+        _currentUser = _currentUser.copyWith(favoriteProfilesIdList: upUser.favoriteProfilesIdList);
+      }
+
       AnimalProfile newAnimalProf = widget.animalProfile.copyWith(likesNum: widget.animalProfile.getLikes()-1);
 
       _currentUser.removeFromFavProfilesList(widget.animalProfile.id);
@@ -366,8 +437,8 @@ class AnimalProfileCardState extends State<AnimalProfileCard> with AutomaticKeep
           children: <Widget> [
             Container(
                 margin: EdgeInsets.fromLTRB(0, 5, 20, 5),
-                width: deviceSize.width/2 - 30,
-                height: 170,
+                width: _cardWidth/2- 25,
+                height: _cardHeight * 0.80,
                 // decoration: BoxDecoration(
                 //   shape: BoxShape.rectangle,
                 //   color: Colors.grey[400],
@@ -386,20 +457,28 @@ class AnimalProfileCardState extends State<AnimalProfileCard> with AutomaticKeep
                   ),
                 )
             ),
-            Text('Created At:',
-              style: TextStyle(
-                  fontSize: 10,
-                  fontWeight: FontWeight.bold
-              ),
-              overflow: TextOverflow.ellipsis,),
-            Text(createDateToView(),
-              style: TextStyle(
-                  fontSize: 10,
-                  fontWeight: FontWeight.bold
-              ),
-              overflow: TextOverflow.ellipsis,)
 
-    ]
+              Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Created At:',
+                    style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold
+                    ),
+                    overflow: TextOverflow.ellipsis,),
+                  Text(createDateToView(),
+                    style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold
+                    ),
+                    overflow: TextOverflow.ellipsis,)
+                ]
+
+            ),
+
+          ]
         ),
         Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -433,8 +512,8 @@ class AnimalProfileCardState extends State<AnimalProfileCard> with AutomaticKeep
         .of(context)
         .size;
 
-    final cardWidth = deviceSize.width - 20;
-    final cardHeight = deviceSize.height / 3;
+    _cardWidth = deviceSize.width - 20;
+    _cardHeight = deviceSize.height / 3;
 
     return
     //   isDeleted
@@ -453,8 +532,8 @@ class AnimalProfileCardState extends State<AnimalProfileCard> with AutomaticKeep
               color: Colors.orange[200],
               child: InkWell(
                   child: SizedBox(
-                    width: cardWidth,
-                    height: cardHeight,
+                    width: _cardWidth,
+                    height: _cardHeight,
                     child: _currentImage == null ?
                         Padding(
                           padding: EdgeInsets.fromLTRB(10,50,10,50),
@@ -464,8 +543,8 @@ class AnimalProfileCardState extends State<AnimalProfileCard> with AutomaticKeep
 
                                   //margin: EdgeInsets.fromLTRB(deviceSize.width*0.2, deviceSize.height*0.16, deviceSize.width*0.2, deviceSize.height*0.16),
                                   child: SizedBox(
-                                    height: cardHeight * 0.06,
-                                      width: cardWidth * 0.5,
+                                    height: _cardHeight * 0.06,
+                                      width: _cardWidth * 0.5,
                                       child: LinearProgressIndicator(color: Colors.red, backgroundColor: Colors.orange[200], )
                                   ),
                               ),
@@ -489,7 +568,9 @@ class AnimalProfileCardState extends State<AnimalProfileCard> with AutomaticKeep
                                 storage: widget.storage,),
                         )).then((_)  async {
                       await _currentUserDetails();
+                      await _retrievePicFromDB();
                       _checkIfLiked();
+
                     } ); // the liked list may be changed
                   } : () {} // if edit (from created profiles view - do nothing, because there is an edit button),
               ),
@@ -501,8 +582,8 @@ class AnimalProfileCardState extends State<AnimalProfileCard> with AutomaticKeep
                   child: RotationTransition(
                     turns: new AlwaysStoppedAnimation(-20 / 360),
                     child: Container(
-                      width: cardWidth * 0.8,
-                      height: cardHeight * 0.17,
+                      width: _cardWidth * 0.8,
+                      height: _cardHeight * 0.17,
                       //padding: EdgeInsets.fromLTRB(cardWidth * 0.05, 10, cardWidth * 0.2, 10),
                       decoration: BoxDecoration(
                           color: Colors.redAccent.withOpacity(0.7),
