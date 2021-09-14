@@ -25,7 +25,6 @@ class AnimalProfileCard extends StatefulWidget {
         required this.withEdit,
         required this.key
       });
-      //: super(key: key);
 
   AnimalProfile animalProfile;
   final StorageRepository storage;
@@ -95,31 +94,20 @@ class AnimalProfileCardState extends State<AnimalProfileCard> with AutomaticKeep
     });
   }
 
-  // Future<void> checkIfImageUpdated() async {
-  //   print('checkIfImageUpdated');
-  //
-  //
-  //   Image? dbImage= await _retrievePicFromDB(save: false);
-  //
-  //   Image.
-  //
-  //   var assetResult = await compareImages(
-  //       src1: _currentImage, src2: dbImage, algorithm: PixelMatching());
-  //
-  //   print('assetResult  '+ assetResult.toString());
-  //
-  //
-  //   if(assetResult > 0.0) {
-  //     print('Image changed');
-  //     setState((){
-  //       _currentImage = dbImage;
-  //       print('updated here');
-  //       isUpdated = true;
-  //     });
-  //   }
-  //
-  //
-  // }
+  Future<void> checkIfUpdated() async {
+
+    // getting the updated info from DB
+    AnimalProfile? ap = await widget.dataRepo.getAnimalById(widget.animalProfile.id);
+    if(ap !=null && widget.animalProfile != ap) {
+      widget.animalProfile = ap;
+      setState((){
+        isUpdated = true;
+      });
+    }
+
+
+  }
+
 
 
 
@@ -133,8 +121,6 @@ class AnimalProfileCardState extends State<AnimalProfileCard> with AutomaticKeep
       _retrievePicFromDB();
       _checkIfLiked();
     }
-
-
 
 
   }
@@ -160,7 +146,6 @@ class AnimalProfileCardState extends State<AnimalProfileCard> with AutomaticKeep
   }
 
   Future<void> _currentUserDetails() async {
-    print('IN');
     try {
     _currentUserId = widget.logic.getCurrentUser()!.uid;
     _currentUser = await widget.logic.getUserById(_currentUserId);
@@ -371,11 +356,17 @@ class AnimalProfileCardState extends State<AnimalProfileCard> with AutomaticKeep
             IconButton(
                 onPressed: (!isDeleted) ? () {
                   //Navigator.of(context).pushNamed('/animal_profile_create');
-                  Navigator.pushReplacement(
+                  Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => AnimalProfileEdit(logic: widget.logic, storage: widget.storage, dataRepo: widget.dataRepo, animalProfile: widget.animalProfile,),
-                      ));
+                        builder: (context) => AnimalProfileEdit(logic: widget.logic,
+                          storage: widget.storage, dataRepo: widget.dataRepo,
+                          animalProfile: widget.animalProfile,),
+                      )).then(((_)  async {
+                    await _retrievePicFromDB();
+                    await checkIfUpdated();
+
+                  } ));
                 } : () {},
                 icon: Icon(Icons.edit)
             ),

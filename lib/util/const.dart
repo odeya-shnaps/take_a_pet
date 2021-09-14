@@ -47,3 +47,8 @@ Future<bool> showExitPopup(context) async{
         );
       });
 }
+
+
+
+final List<String> ACCEPTED_ANIMALS =
+  ['cat', 'chicken', 'dog', 'frog', 'toad','lizard', 'horse', 'rabbit', 'hare', 'Angora', 'snake', 'squirrel'];

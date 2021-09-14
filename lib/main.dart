@@ -39,7 +39,7 @@ void main() async {
 
     Map<String, Widget Function(BuildContext)> routes = {
       '/': (context) => Login(logic: logic, storage: storageRepo),
-      '/created_profiles': (context) => CreatedProfiles(logic: logic, storage: storageRepo, dataRepo: dateRepo,),
+      '/created_profiles': (context) => CreatedProfiles(logic: logic, storage: storageRepo, dataRepo: dateRepo),
       '/login': (context) => Login(logic: logic, storage: storageRepo),
       '/favorites': (context) => Favorites(logic: logic, storage: storageRepo, dataRepo: dateRepo,),
       '/user_profile_edit': (context) => UserProfileEdit(logic: logic, storage: storageRepo,),
