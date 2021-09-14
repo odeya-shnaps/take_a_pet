@@ -316,59 +316,6 @@ class _AnimalProfileCreateState extends State<AnimalProfileCreate> {
       });
     }
   }
-/*
-  bool _validAge() {
-    return false;
-  }
-
-  Widget _ageFormat(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(left: 25.0, right: 25.0,),
-      child: Row(
-        children: [
-          Icon(Icons.date_range_outlined,),
-          TextFormField(
-            keyboardType: TextInputType.number,
-            autofocus: true,
-            controller: yearController,
-            validator: (val) {
-              if (!_validAge()) {
-                return 'insert';
-              }
-              // valid info
-              return null;
-            },
-          ),
-          Text("/"),
-          TextFormField(
-            keyboardType: TextInputType.number,
-            autofocus: true,
-            controller: monthController,
-            validator: (val) {
-              if (!_validAge()) {
-                return 'valid';
-              }
-              // valid info
-              return null;
-            },
-          ),
-          Text("/"),
-          TextFormField(
-            keyboardType: TextInputType.number,
-            autofocus: true,
-            controller: dayController,
-            validator: (val) {
-              if (!_validAge()) {
-                return 'age';
-              }
-              // valid info
-              return null;
-            },
-          ),
-        ],
-      ),
-    );
-  }*/
 
 
   Widget _getActionButtons(BuildContext context) {

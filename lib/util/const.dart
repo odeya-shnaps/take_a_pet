@@ -20,9 +20,9 @@ Future<bool> showExitPopup(context) async{
                       child: ElevatedButton(
                         onPressed: () {
                           print('exit app');
-                          Navigator.of(context).pushNamedAndRemoveUntil(
-                              '/login', (Route<dynamic> route) => false);
-                          //exit(0);
+                          //Navigator.of(context).pushNamedAndRemoveUntil(
+                           //   '/login', (Route<dynamic> route) => false);
+                          exit(0);
                         },
                         child: Text("Yes"),
                         style: ElevatedButton.styleFrom(

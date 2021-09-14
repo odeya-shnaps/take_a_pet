@@ -12,7 +12,7 @@ import 'package:take_a_pet/views/Image_view.dart';
 import 'package:take_a_pet/models/history.dart';
 import 'package:take_a_pet/views/animal_profile_edit.dart';
 import 'package:take_a_pet/views/animal_profile_view.dart';
-
+import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 
 
@@ -277,13 +277,29 @@ class AnimalProfileCardState extends State<AnimalProfileCard> with AutomaticKeep
       setState(() {
         isDeleted = true;
       });
+      _updateMatrix();
     } catch(e) {
       _error = e.toString();
       _showError();
     }
   }
 
+  Future<void> _updateMatrix() async {
+    Uri functionUrl = Uri.parse('https://europe-central2-take-a-pet.cloudfunctions.net/update-count-matrix');
 
+    try {
+      var response = await http.get(functionUrl);
+      var status = response.statusCode;
+
+      //print(status);
+
+
+    } catch (e) {
+      //print(e);
+      _error = 'Problem with update matrix';
+      _showError();
+    }
+  }
 
 
 
@@ -320,6 +336,7 @@ class AnimalProfileCardState extends State<AnimalProfileCard> with AutomaticKeep
             )
           ]
         ),
+        /*
         SizedBox(width: 40),
         Column(
             children: [
@@ -334,7 +351,7 @@ class AnimalProfileCardState extends State<AnimalProfileCard> with AutomaticKeep
                 style: TextStyle(fontSize: 12),
               )
             ]
-        ),
+        ),*/
       ],
     );
   }
@@ -407,7 +424,7 @@ class AnimalProfileCardState extends State<AnimalProfileCard> with AutomaticKeep
           SizedBox(height: 10),
           Text("${widget.animalProfile.gender}"),
           SizedBox(height: 10),
-          Text("${widget.animalProfile.age} Years"),
+          Text("${widget.animalProfile.getStringAge()}"),
           SizedBox(height: 2),
           Divider(thickness: 3, color: Colors.grey[500],),
         ],
