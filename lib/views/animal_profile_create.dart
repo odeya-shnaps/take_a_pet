@@ -1335,7 +1335,8 @@ class _AnimalProfileCreateState extends State<AnimalProfileCreate> {
                   ),
                 );
               //);
-            });
+            }
+            );
 
 
       }

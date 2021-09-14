@@ -1,6 +1,8 @@
 import 'package:another_flushbar/flushbar.dart';
+import 'package:filter_list/filter_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_admin_scaffold/admin_scaffold.dart';
+import 'package:select_dialog/select_dialog.dart';
 import 'package:take_a_pet/db/data_repository.dart';
 import 'package:take_a_pet/db/db_logic.dart';
 import 'package:take_a_pet/db/storage_repository.dart';
@@ -11,6 +13,7 @@ import 'package:take_a_pet/util/widgets.dart';
 import 'package:take_a_pet/util/animal_profile_card.dart';
 import 'package:take_a_pet/models/animal_profile.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+
 
 class HomeProfiles extends StatefulWidget {
 
@@ -39,6 +42,56 @@ class _HomeProfilesState extends State<HomeProfiles> {
   Widget prev = Container(child: Text('Loading'));
 
   bool initialFeed = true;
+
+  List<String> _selectedFilters = [];
+
+  bool isFiltered = false;
+
+  List<int> searchResultIndexes = [];
+
+  Icon _icon = new Icon(
+    Icons.search,
+    color: Colors.white,
+  );
+
+  int _numCards = -1;
+
+  // void _openFilterDialog() async {
+  //   await FilterListDialog.display<String>(
+  //       context,
+  //       barrierDismissible: false,
+  //       listData: ACCEPTED_ANIMALS,
+  //       selectedListData: selectedFilter,
+  //       height: 480,
+  //       headlineText: "Select animals types",
+  //       searchFieldHintText: "Search Here",
+  //       choiceChipLabel: (item) {
+  //         return item;
+  //       },
+  //       validateSelectedItem: (list, val) {
+  //         return list!.contains(val);
+  //       },
+  //       onItemSearch: (list, text) {
+  //         if (list!.any((element) =>
+  //             element.toLowerCase().contains(text.toLowerCase()))) {
+  //           return list
+  //               .where((element) =>
+  //               element.toLowerCase().contains(text.toLowerCase()))
+  //               .toList();
+  //         }
+  //         else{
+  //           return [];
+  //         }
+  //       },
+  //       onApplyButtonClick: (list) {
+  //         if (list != null) {
+  //           setState(() {
+  //             selectedFilter = List.from(list);
+  //           });
+  //         }
+  //         Navigator.pop(context);
+  //       });
+  // }
 
 
   @override
@@ -72,10 +125,6 @@ class _HomeProfilesState extends State<HomeProfiles> {
 
         ),
 
-        // ElevatedButton.styleFrom(
-        //   primary: Colors.brown,
-        //
-        // ),
         child: Text(
           'Refresh\n feed',
           textAlign: TextAlign.center,
@@ -121,12 +170,7 @@ class _HomeProfilesState extends State<HomeProfiles> {
         shrinkWrap: true,
         itemCount: _animalsProfilesFeed.length,
         itemBuilder: (BuildContext context, int index) {
-          var animalCard = AnimalProfileCard(
-              animalProfile: _animalsProfilesFeed[index],
-              storage: widget.storage,
-              logic: widget.logic,
-              dataRepo: widget.dataRepo,
-              withEdit: false, key: new GlobalKey());
+          var animalCard = _createCard(index);
           feedCards.add(animalCard);
           return animalCard;
         },
@@ -137,6 +181,15 @@ class _HomeProfilesState extends State<HomeProfiles> {
 
     return true;
 
+  }
+
+  AnimalProfileCard _createCard(index) {
+    return AnimalProfileCard(animalProfile: _animalsProfilesFeed[index],
+        storage: widget.storage,
+        logic: widget.logic,
+        dataRepo: widget.dataRepo,
+        withEdit: false, key: new GlobalKey()
+    );
   }
 
   void _checkIfDeleted(List<AnimalProfile>? newFeed) {
@@ -209,6 +262,36 @@ class _HomeProfilesState extends State<HomeProfiles> {
 
   }
 
+  void searchOperation(List<String> labels) {
+    print('labels' + labels.toString());
+    _numCards = 0;
+    searchResultIndexes.clear();
+
+    if (isFiltered) {
+      for (int i = 0; i < _animalsProfilesFeed.length; i++) {
+        String data = _animalsProfilesFeed[i].type;
+        // the animal name contains the name typed by user
+        bool ifExists = labels.contains(data);
+
+        if (ifExists) {
+          searchResultIndexes.add(i);
+          _numCards+=1;
+        }
+      }
+    }
+
+    print('numCards'+ _numCards.toString());
+  }
+
+
+
+  void _handleSearchStart() async{
+    //getNames();
+
+    setState(() {
+      isFiltered = true;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -227,6 +310,45 @@ class _HomeProfilesState extends State<HomeProfiles> {
                       backgroundColor: Colors.lightBlue,
                       actions: [
                         IconButton(
+                          onPressed: () {
+                            setState(() async {
+                              if (_icon.icon == Icons.search) {
+                                _icon = new Icon(
+                                  Icons.search_off_rounded,
+                                  color: Colors.redAccent,
+                                );
+                                _handleSearchStart();
+
+
+                                await SelectDialog.showModal<String>(
+                                  context,
+                                  label: "Choose animals types",
+                                  multipleSelectedValues: _selectedFilters,
+                                  items: ACCEPTED_ANIMALS,
+
+                                  onMultipleItemsChange: (List<String> selected) {
+
+                                    setState(() {
+                                      print('selected= '+selected.toString());
+                                      _selectedFilters = selected;
+
+                                    });
+                                  },
+                                );
+
+                                print('selected2 '+_selectedFilters.toString());
+                                searchOperation(_selectedFilters);
+
+                              } else {
+                                Navigator.pushReplacementNamed(
+                                    context, '/home_profiles.dart');
+                              }
+                            });
+                          },
+                          icon: _icon,
+                        ),
+
+                        IconButton(
                             onPressed: () {
                               Navigator.pushReplacementNamed(
                                   context, '/home_profiles.dart');
@@ -235,6 +357,7 @@ class _HomeProfilesState extends State<HomeProfiles> {
                         ),
                       ],
                     ),
+
                     sideBar: buildSideBar(context),
                     body: (snapshot.hasData) ? Container(
                       //padding: const EdgeInsets.only(left: 30),
@@ -242,7 +365,7 @@ class _HomeProfilesState extends State<HomeProfiles> {
                       child:  Flexible(
                         child: Align(
                           alignment: Alignment.topCenter,
-                          child:  StreamBuilder<List<AnimalProfile>?>(
+                          child: (!isFiltered) ? StreamBuilder<List<AnimalProfile>?>(
                               stream: widget.dataRepo.getAnimalsList(),
                               initialData: _animalsProfilesFeed,
                               builder: (BuildContext context,
@@ -282,8 +405,34 @@ class _HomeProfilesState extends State<HomeProfiles> {
                                 return prev;
 
                               }
+                          ) : _numCards == -1 ?
+                          Padding(
+                              padding: EdgeInsets.only(top: 60),
+                              child: CircularProgressIndicator(color: Colors.orange,)
+                          ) :
+                          (_numCards == 0 && isFiltered) ?
+                          Padding(
+                              padding: EdgeInsets.only(top: 60),
+                              child: Text('No pets that match your filter',
+                                  style: TextStyle(
+                                      color: Colors.red[800],
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold))
                           )
-                        ),
+                              :
+                          ListView.builder(
+                            shrinkWrap: true,
+                            reverse: false,
+                            itemCount: _numCards,
+                            itemBuilder: (context, index) {
+                              return _createCard(searchResultIndexes[index]);
+                            },
+                            addAutomaticKeepAlives: true,
+                            //cacheExtent: _numCards,
+
+
+                          )
+                        ) ,
                       )
                     ): Center(
                       child: SizedBox(
@@ -297,123 +446,6 @@ class _HomeProfilesState extends State<HomeProfiles> {
               );
 
 
-          // return WillPopScope(
-          //   onWillPop: () => showExitPopup(context),
-          //   child:
-          //   AdminScaffold(
-          //       backgroundColor: Colors.white,
-          //       appBar: AppBar(
-          //         title: const Text('Feed', style: TextStyle(fontSize: 17),),
-          //         backgroundColor: Colors.lightBlue,
-          //         actions: [
-          //           IconButton(
-          //               onPressed: () {
-          //                 Navigator.pushReplacementNamed(
-          //                     context, '/home_profiles.dart');
-          //               },
-          //               icon: Icon(Icons.refresh)
-          //           ),
-          //           IconButton(
-          //               onPressed: () {
-          //                 showExitPopup(context);
-          //
-          //                 // Navigator.of(context).pushNamedAndRemoveUntil(
-          //                 //     '/login', (Route<dynamic> route) => false);
-          //               },
-          //               icon: Icon(Icons.logout)
-          //           ),
-          //         ],
-          //       ),
-          //       sideBar: buildSideBar(context),
-          //       body: Container(
-          //         //padding: const EdgeInsets.only(left: 30),
-          //         //width: deviceWidth,
-          //         child: Flexible(
-          //           child: Align(
-          //             alignment: Alignment.topCenter,
-          //             child: StreamBuilder<List<AnimalProfile>?>(
-          //                 stream: widget.dataRepo.getAnimalsList(),
-          //                 initialData: _animalsProfilesFeed,
-          //                 builder: (BuildContext context,
-          //                     AsyncSnapshot<List<AnimalProfile>?> snapshot) {
-          //                   //List<Widget> cards = [];
-          //                   if (snapshot.hasError) {
-          //                     return Column(
-          //                         children: <Widget>[
-          //                           const Icon(
-          //                             Icons.error_outline,
-          //                             color: Colors.red,
-          //                             size: 60,
-          //                           ),
-          //                           Padding(
-          //                             padding: const EdgeInsets.only(top: 16),
-          //                             child: Text('Error: ${snapshot.error}'),
-          //                           ),
-          //                           Padding(
-          //                             padding: const EdgeInsets.only(top: 8),
-          //                             child: Text('Stack trace: ${snapshot.stackTrace}'),
-          //                           ),
-          //                         ]
-          //                     );
-          //                   }
-          //                   if (!snapshot.hasData) {
-          //                     return Container();
-          //                   }
-          //
-          //                   List<AnimalProfile>? list = snapshot.data;
-          //
-          //                   print(_animalsProfilesFeed);
-          //                   print(_animalsProfilesFeed.length);
-          //                   //List<AnimalProfileCard> newFeed = [];
-          //
-          //                   // list!.forEach((animal) {
-          //                   //   var animalCard = AnimalProfileCard(
-          //                   //       animalProfile: animal,
-          //                   //       storage: widget.storage,
-          //                   //       logic: widget.logic,
-          //                   //       dataRepo: widget.dataRepo,
-          //                   //       withEdit: false);
-          //                   //   newFeed.add(animalCard);
-          //                   // });
-          //
-          //                   // var newFeed = ListView.builder(
-          //                   //   reverse: false,
-          //                   //   shrinkWrap: true,
-          //                   //   itemCount: list!.length,
-          //                   //   itemBuilder: (BuildContext context, int index) {
-          //                   //     var animalCard = AnimalProfileCard(
-          //                   //         animalProfile: list![index],
-          //                   //         storage: widget.storage,
-          //                   //         logic: widget.logic,
-          //                   //         dataRepo: widget.dataRepo,
-          //                   //         withEdit: false);
-          //                   //     feed.add(animalCard);
-          //                   //     return animalCard;
-          //                   //   },
-          //                   //
-          //                   //
-          //                   // );
-          //
-          //                   // if(!initialFeed) {
-          //                   //   print('not initail');
-          //                     _checkIfDeleted(list);
-          //                     _checkIfAdded(list, context);
-          //                  // } else {
-          //                  //   print('yes initaial');
-          //                   //  initialFeed = false;
-          //                  // }
-          //
-          //                   return prev;
-          //
-          //
-          //                 }
-          //             ),
-          //           ),
-          //         ),
-          //       )
-          //
-          //   ),
-          // );
         },
 
       );
@@ -421,127 +453,3 @@ class _HomeProfilesState extends State<HomeProfiles> {
 }
 
 
-// Widget build(BuildContext context) {
-//
-//   return
-//     FutureBuilder(
-//       future: _getInitialFeed(),
-//       builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
-//         return WillPopScope(
-//           onWillPop: () => showExitPopup(context),
-//           child:
-//           AdminScaffold(
-//               backgroundColor: Colors.white,
-//               appBar: AppBar(
-//                 title: const Text('Feed', style: TextStyle(fontSize: 17),),
-//                 backgroundColor: Colors.lightBlue,
-//                 actions: [
-//                   IconButton(
-//                       onPressed: () {
-//                         Navigator.pushReplacementNamed(
-//                             context, '/home_profiles.dart');
-//                       },
-//                       icon: Icon(Icons.refresh)
-//                   ),
-//                   IconButton(
-//                       onPressed: () {
-//                         showExitPopup(context);
-//
-//                         // Navigator.of(context).pushNamedAndRemoveUntil(
-//                         //     '/login', (Route<dynamic> route) => false);
-//                       },
-//                       icon: Icon(Icons.logout)
-//                   ),
-//                 ],
-//               ),
-//               sideBar: buildSideBar(context),
-//               body: Container(
-//                 //padding: const EdgeInsets.only(left: 30),
-//                 //width: deviceWidth,
-//                 child: Flexible(
-//                   child: Align(
-//                     alignment: Alignment.topCenter,
-//                     child: Stack(
-//                         children:[
-//                           prev,
-//                           StreamBuilder<List<AnimalProfile>?>(
-//                               stream: widget.dataRepo.getAnimalsList(),
-//                               initialData: [],
-//                               builder: (BuildContext context,
-//                                   AsyncSnapshot<List<AnimalProfile>?> snapshot) {
-//                                 //List<Widget> cards = [];
-//                                 if (snapshot.hasError) {
-//                                   return Column(
-//                                       children: <Widget>[
-//                                         const Icon(
-//                                           Icons.error_outline,
-//                                           color: Colors.red,
-//                                           size: 60,
-//                                         ),
-//                                         Padding(
-//                                           padding: const EdgeInsets.only(top: 16),
-//                                           child: Text('Error: ${snapshot.error}'),
-//                                         ),
-//                                         Padding(
-//                                           padding: const EdgeInsets.only(top: 8),
-//                                           child: Text('Stack trace: ${snapshot.stackTrace}'),
-//                                         ),
-//                                       ]
-//                                   );
-//                                 }
-//                                 if (!snapshot.hasData) {
-//                                   return Container();
-//                                 }
-//
-//                                 List<AnimalProfile>? list = snapshot.data;
-//
-//                                 //List<AnimalProfileCard> newFeed = [];
-//
-//                                 // list!.forEach((animal) {
-//                                 //   var animalCard = AnimalProfileCard(
-//                                 //       animalProfile: animal,
-//                                 //       storage: widget.storage,
-//                                 //       logic: widget.logic,
-//                                 //       dataRepo: widget.dataRepo,
-//                                 //       withEdit: false);
-//                                 //   newFeed.add(animalCard);
-//                                 // });
-//
-//                                 // var newFeed = ListView.builder(
-//                                 //   reverse: false,
-//                                 //   shrinkWrap: true,
-//                                 //   itemCount: list!.length,
-//                                 //   itemBuilder: (BuildContext context, int index) {
-//                                 //     var animalCard = AnimalProfileCard(
-//                                 //         animalProfile: list![index],
-//                                 //         storage: widget.storage,
-//                                 //         logic: widget.logic,
-//                                 //         dataRepo: widget.dataRepo,
-//                                 //         withEdit: false);
-//                                 //     feed.add(animalCard);
-//                                 //     return animalCard;
-//                                 //   },
-//                                 //
-//                                 //
-//                                 // );
-//
-//                                 _checkIfDeleted(list);
-//                                 _checkIfAdded(list, context);
-//
-//
-//                                 return Container();
-//
-//                               }
-//                           ),
-//                         ]
-//                     ),
-//                   ),
-//                 ),
-//               )
-//
-//           ),
-//         );
-//       },
-//
-//     );
-// }
