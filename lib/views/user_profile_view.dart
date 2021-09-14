@@ -208,6 +208,8 @@ class _UserProfileViewState extends State<UserProfileView> {
               padding: EdgeInsets.only(left: 20, right: 20),
               child: Column(
                 children: [
+                  _createRow(_currentUser.email, 'Email', Icon(Icons.email, color: Colors.grey,), false),
+                  SizedBox(height: 10),
                   _createRow(_currentUser.getFirstName(), 'FirstName', Icon(Icons.account_circle, color: Colors.grey,), false),
                   _isEmpty ? SizedBox() : SizedBox(height: 10),
                   _createRow(_currentUser.getLastName(), 'Last Name', Icon(Icons.people_alt_outlined, color: Colors.grey,), false),

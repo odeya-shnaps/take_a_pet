@@ -51,10 +51,10 @@ class AnimalProfile {
     return "Not Trained";
   }
 
-  String getStringAge(double age) {
+  String getStringAge() {
     try {
       String str = "";
-      var splitNum = age.toString().split('.');
+      var splitNum = this.age.toString().split('.');
       int year = int.tryParse(splitNum[0]) ?? 0;
 
       if (year > 1) {

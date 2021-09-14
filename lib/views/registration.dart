@@ -228,7 +228,7 @@ class _RegistrationState extends State<Registration> {
                           ImageView(selectedImage: _selectedImage,
                               logic: widget.logic,
                               storage: widget.storage,
-                              forEdit: true,
+                              forEdit: false,
                               userId: _currentUserId),
                     ));
               }

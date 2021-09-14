@@ -21,9 +21,6 @@ import 'package:take_a_pet/util/dynamic_text_field.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
-import 'dart:convert';
-import 'package:http/http.dart' as http;
-
 
 class AnimalProfileCreate extends StatefulWidget {
 
@@ -86,7 +83,6 @@ class _AnimalProfileCreateState extends State<AnimalProfileCreate> {
   bool algoInProgress = false;
   String breedClassification='';
   String typeClassification='';
-
 
   @override
   void initState() {
@@ -157,7 +153,6 @@ class _AnimalProfileCreateState extends State<AnimalProfileCreate> {
   }
 
   double _getAge() {
-    // which way is better??
     return double.tryParse(ageController.text) ?? 0.0;
   }
 
@@ -185,7 +180,7 @@ class _AnimalProfileCreateState extends State<AnimalProfileCreate> {
 
   void _insertDetailsToAnimal() {
 
-    print('inserting details');
+    //print('inserting details');
     double age = _getAge();
     List<String> qualities = _getQualities();
     List<String> colors = _getColors();
@@ -208,8 +203,25 @@ class _AnimalProfileCreateState extends State<AnimalProfileCreate> {
         isTrained: trained,
         about: descriptionController.text);
 
-    print('DONE inserting details');
+    //print('DONE inserting details');
 
+  }
+
+  Future<void> _updateMatrix() async {
+    Uri functionUrl = Uri.parse('https://europe-central2-take-a-pet.cloudfunctions.net/update-count-matrix');
+
+    try {
+      var response = await http.get(functionUrl);
+      var status = response.statusCode;
+
+      //print(status);
+
+
+    } catch (e) {
+      //print(e);
+      _error = 'Problem with update matrix';
+      _showError();
+    }
   }
 
   Future<void> _currentUserDetails() async {
@@ -237,9 +249,7 @@ class _AnimalProfileCreateState extends State<AnimalProfileCreate> {
 
   Future<void> _saveDetails(BuildContext context) async {
 
-
-
-    print('saving details');
+    //print('saving details');
 
     try {
       //print('try');
@@ -277,7 +287,7 @@ class _AnimalProfileCreateState extends State<AnimalProfileCreate> {
     //         //widget.dataRepo.updateAnimal(updatedAnimal: _currentAnimal)
     //       ]);
 
-          print('finish insertion to DB');
+          //print('finish insertion to DB');
 
           setState(() {
 
@@ -286,7 +296,7 @@ class _AnimalProfileCreateState extends State<AnimalProfileCreate> {
             saved = true;
           });
 
-
+        _updateMatrix();
 
         } else {
         //print('You have problems in the info inserted');
@@ -306,6 +316,59 @@ class _AnimalProfileCreateState extends State<AnimalProfileCreate> {
       });
     }
   }
+/*
+  bool _validAge() {
+    return false;
+  }
+
+  Widget _ageFormat(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(left: 25.0, right: 25.0,),
+      child: Row(
+        children: [
+          Icon(Icons.date_range_outlined,),
+          TextFormField(
+            keyboardType: TextInputType.number,
+            autofocus: true,
+            controller: yearController,
+            validator: (val) {
+              if (!_validAge()) {
+                return 'insert';
+              }
+              // valid info
+              return null;
+            },
+          ),
+          Text("/"),
+          TextFormField(
+            keyboardType: TextInputType.number,
+            autofocus: true,
+            controller: monthController,
+            validator: (val) {
+              if (!_validAge()) {
+                return 'valid';
+              }
+              // valid info
+              return null;
+            },
+          ),
+          Text("/"),
+          TextFormField(
+            keyboardType: TextInputType.number,
+            autofocus: true,
+            controller: dayController,
+            validator: (val) {
+              if (!_validAge()) {
+                return 'age';
+              }
+              // valid info
+              return null;
+            },
+          ),
+        ],
+      ),
+    );
+  }*/
 
 
   Widget _getActionButtons(BuildContext context) {
@@ -322,7 +385,7 @@ class _AnimalProfileCreateState extends State<AnimalProfileCreate> {
             //setState(() {});
             // save all in db
 
-            print('PUBLISH');
+            //print('PUBLISH');
 
             _saveDetails(context);
 
@@ -685,6 +748,7 @@ class _AnimalProfileCreateState extends State<AnimalProfileCreate> {
                           TextInputType.name,
                           true),
                       SizedBox(height: 20),
+
                       _createTextFormField(
                           context,
                           "Age",

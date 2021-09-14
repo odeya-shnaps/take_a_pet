@@ -71,11 +71,12 @@ SideBar buildSideBar(BuildContext context) {
         route: '/recommendation',
         icon: Icons.recommend,
       ),
+      /*
       MenuItem(
         title: 'Chats',
         route: '/chats',
         icon: Icons.chat,
-      ),
+      ),*/
       MenuItem(
         title: 'Sign Out',
         route: '/sign_out',

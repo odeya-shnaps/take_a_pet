@@ -129,12 +129,13 @@ class _FavoritesState extends State<Favorites> {
                   },
                   icon: Icon(Icons.refresh)
               ),
+              /*
               IconButton(
                   onPressed: () {
                     Navigator.pop(context);
                   },
                   icon: Icon(Icons.arrow_forward)
-              ),
+              ),*/
             ],
           ),
           sideBar: buildSideBar(context),

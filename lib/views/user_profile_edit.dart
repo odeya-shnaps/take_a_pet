@@ -327,7 +327,7 @@ class _UserProfileEditState extends State<UserProfileEdit>
                               imageFromDB: _currentImageInDB,
                               logic: widget.logic,
                               storage: widget.storage,
-                              forEdit: true,
+                              forEdit: false,
                               userId: _currentUserId),
                     ));
               }

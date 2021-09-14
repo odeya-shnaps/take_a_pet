@@ -11,6 +11,8 @@ import 'package:take_a_pet/util/const.dart';
 import 'package:take_a_pet/util/widgets.dart';
 import 'package:take_a_pet/models/history.dart';
 import 'package:lazy_load_scrollview/lazy_load_scrollview.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 
 class Recommendation extends StatefulWidget {
@@ -46,20 +48,45 @@ class _RecommendationState extends State<Recommendation> {
   void initState() {
     super.initState();
     _currentUserDetails();
-    _getRecommendation();
+    //_getRecommendation();
   }
+
 
   Future<void> _getRecommendation() async {
     // get data from algo
     _animalIdList = [];
     _numCards = _animalsList.length;
-    _getAllAnimalsFromId();
+    await _getRecommendedIds();
+    await _getAllAnimalsFromId();
   }
 
   Future<void> _currentUserDetails() async {
     try {
       _currentUserId = widget.logic.getCurrentUser()!.uid;
       _currentUser = await widget.logic.getUserById(_currentUserId);
+      _getRecommendation();
+    } catch (e) {
+      _error = e.toString();
+      _showError();
+    }
+  }
+
+  Future<void> _getRecommendedIds() async {
+
+    List<String> favId = _currentUser.getFavProfilesList();
+    var jsonFav = json.encode(favId);
+    List<String> historyId = _currentUser.historyData.profilesId;
+    var jsonHistory = json.encode(historyId);
+    var jsonBody = json.encode({"favorites": favId, "history": historyId});
+    //print(jsonBody);
+
+    Uri functionUrl = Uri.parse('https://europe-central2-take-a-pet.cloudfunctions.net/get_recommendations');
+
+    try {
+      var response = await http.post(functionUrl, headers: {"Content-Type": "application/json"}, body: jsonBody);
+      var jsonResult = json.decode(response.body);
+      _animalIdList = List<String>.from(jsonResult['recommendation']);
+
     } catch (e) {
       _error = e.toString();
       _showError();
@@ -105,39 +132,83 @@ class _RecommendationState extends State<Recommendation> {
   Widget build(BuildContext context) {
     return
       WillPopScope(
-      onWillPop: () => showExitPopup(context),
-      child:
-      AdminScaffold(
-          backgroundColor: Colors.white,
-          appBar: AppBar(
-            title: const Text('Recommendations', style: TextStyle(fontSize: 15, color: Colors.white),),
-            backgroundColor: Colors.lightBlue,
-            actions: [
-              IconButton(
-                  onPressed: () {
-                    Navigator.pushReplacementNamed(
-                        context, '/recommendation');
-                  },
-                  icon: Icon(Icons.refresh)
+        onWillPop: () => showExitPopup(context),
+        child:
+        AdminScaffold(
+            backgroundColor: Colors.white,
+            appBar: AppBar(
+              title: const Text('Recommendations',
+                style: TextStyle(fontSize: 15, color: Colors.white),),
+              backgroundColor: Colors.lightBlue,
+              actions: [
+                IconButton(
+                    onPressed: () {
+                      Navigator.pushReplacementNamed(
+                          context, '/recommendation');
+                    },
+                    icon: Icon(Icons.refresh)
+                ),
+                /*
+                IconButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    icon: Icon(Icons.arrow_forward)
+                ),*/
+              ],
+            ),
+            sideBar: buildSideBar(context),
+            body: Container(
+              //padding: const EdgeInsets.only(left: 30),
+              //width: deviceWidth,
+              child: Flexible(
+                child: Align(
+                  alignment: Alignment.topCenter,
+                  child: _numCards == 0 ?
+                  Column(
+                    children: [
+                      Padding(
+                          padding: EdgeInsets.only(top: 60),
+                          child: CircularProgressIndicator(
+                            color: Colors.orange,)
+                      ),
+                      SizedBox(height: 10,),
+                      Text('Finding Recommendations...',
+                          style: TextStyle(
+                              color: Colors.amber[800],
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold)),
+                    ],
+                  )
+                      :
+                  ListView.builder(
+                    shrinkWrap: true,
+                    reverse: false,
+                    itemCount: _numCards,
+                    itemBuilder: (context, index) {
+                      return _createCard(index);
+                    },
+                    addAutomaticKeepAlives: true,
+                    //cacheExtent: _numCards,
+
+
+                  ),
+
+
+                ),
               ),
-              IconButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  icon: Icon(Icons.arrow_forward)
-              ),
-            ],
-          ),
-          sideBar: buildSideBar(context),
-          body: Container(
+            )
+
+
+          /*Container(
             //padding: const EdgeInsets.only(left: 30),
             //width: deviceWidth,
             child: Flexible(
               child: Align(
                 alignment: Alignment.topCenter,
                 child: ListView.builder(
-                  shrinkWrap: true,
-                  reverse: true,
+                  //shrinkWrap: true,
+                  //reverse: true,
                   itemCount: _numCards,
                   itemBuilder: (context, index) {
                     return _createCard(index);
@@ -145,10 +216,10 @@ class _RecommendationState extends State<Recommendation> {
                 ),
               ),
             ),
-          )
+          )*/
 
-      ),
-    );
+        ),
+      );
   }
 }
 

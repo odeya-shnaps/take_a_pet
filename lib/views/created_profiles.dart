@@ -42,12 +42,12 @@ class _CreatedProfilesState extends State<CreatedProfiles> {
 
   @override
   void initState() {
-    print('init');
+    //print('init');
     _animalsList = [];
     _animalIdList = [];
     super.initState();
     _currentUserDetails();
-    print('DONE init: '+ _animalsList.length.toString());
+    //print('DONE init: '+ _animalsList.length.toString());
 
   }
 
@@ -58,7 +58,7 @@ class _CreatedProfilesState extends State<CreatedProfiles> {
       _animalIdList =  _currentUser.getCreatedProfilesIdList();
       _numCards = _animalIdList.length;
       await _getAllAnimalsFromId();
-      print('finish update list');
+      //print('finish update list');
     } catch (e) {
       _error = e.toString();
       _showError();

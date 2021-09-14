@@ -268,6 +268,7 @@ class _AnimalProfileViewState extends State<AnimalProfileView> {
                 Text('Like')
               ]
           ),
+          /*
           SizedBox(width: 10,),
           Column(
             children: <Widget> [
@@ -280,7 +281,7 @@ class _AnimalProfileViewState extends State<AnimalProfileView> {
               ),
               Text('Direct\n message', textAlign: TextAlign.center,)
             ],
-          ),
+          ),*/
         ],
       ),
     );
@@ -295,9 +296,7 @@ class _AnimalProfileViewState extends State<AnimalProfileView> {
       return SizedBox();
     }
     String text = t;
-    if (isAge) {
-      text = text + "   years";
-    } else if (isSize) {
+    if (isSize) {
       switch(text) {
       //case 'XS' : text = "Extra small"; break;
         case 'S' : text = "Small"; break;
@@ -416,7 +415,7 @@ class _AnimalProfileViewState extends State<AnimalProfileView> {
                   _isEmpty ? SizedBox() : SizedBox(height: 10),
                   _createRow(_currentAnimal.getBreed(), 'Breed', Icon(Icons.filter_vintage, color: Colors.orange[600],), false, false),
                   _isEmpty ? SizedBox() : SizedBox(height: 10),
-                  _createRow(_currentAnimal.age.toString(), 'Age', Icon(Icons.date_range_outlined, color: Colors.orange[600],), true, false),
+                  _createRow(_currentAnimal.getStringAge(), 'Age', Icon(Icons.date_range_outlined, color: Colors.orange[600],), true, false),
                   _isEmpty ? SizedBox() : SizedBox(height: 10),
                   _createRow(_currentAnimal.gender, 'Gender', Icon(Icons.wc_outlined, color: Colors.orange[600],), false, false),
                   _isEmpty ? SizedBox() : SizedBox(height: 10),

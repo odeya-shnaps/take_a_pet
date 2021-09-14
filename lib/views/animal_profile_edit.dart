@@ -1083,6 +1083,7 @@ class _AnimalProfileEditState extends State<AnimalProfileEdit> {
         });
 
         //Navigator.pushReplacementNamed(context, '/created_profiles');
+        _updateMatrix();
 
       } catch (e) {
         _error = e.toString();
@@ -1094,6 +1095,22 @@ class _AnimalProfileEditState extends State<AnimalProfileEdit> {
     }
   }
 
+  Future<void> _updateMatrix() async {
+    Uri functionUrl = Uri.parse('https://europe-central2-take-a-pet.cloudfunctions.net/update-count-matrix');
+
+    try {
+      var response = await http.get(functionUrl);
+      var status = response.statusCode;
+
+      //print(status);
+
+
+    } catch (e) {
+      //print(e);
+      _error = 'Problem with update matrix';
+      _showError();
+    }
+  }
 
   // Future<void> _saveImage() async {
   //
