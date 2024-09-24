@@ -2,15 +2,13 @@
 
 A new Flutter project.
 
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+The Project is a mobile application for pet adoption called “Take A Pet”.
+Every user that wants to offer an animal for adoption needs to create an animal’s profile by uploading a picture, a description (internal\external) and labels (optional) of the animal. 
+The app will use an image classifier to categories each profile.
+Searching after an animal can be in multiple ways: 
+                                                  1. Scrolling through profiles displayed from recent to oldest on the main feed.
+                                                  2. Asking for recommendation.
+                                                  3. Searching by category.
+To make the search easier and efficient the user can save the profiles he likes.
+The app will use an algorithm to recommend the user animals’ profiles according to his preferences, which will be learn from his behavior in the app, searching history and his saved profiles. 
+When the user finds an animal he wants to adopt, he will contact the animal owner.
